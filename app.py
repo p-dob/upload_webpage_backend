@@ -7,8 +7,15 @@ app = Flask(__name__)
 CORS(app)
 
 def sanitize_filename(filename):
+    # Get the file extension
+    name, ext = os.path.splitext(filename)
+
     # Remove characters that are not allowed in filenames
-    return re.sub(r'[^\w\.-]', '_', filename)
+    name = re.sub(r'[^\w\.-]', '_', name.strip())
+
+    # Combine the sanitized name with the original extension
+    sanitized_filename = name + ext
+    return sanitized_filename
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
@@ -17,19 +24,34 @@ def upload_file():
 
     base_folder = 'uploaded_files'
     files = request.files.getlist('file')
+    folder_list = request.form.getlist('folderName')
+    print(folder_list)
 
-    for file in files:
-        folder_name = request.form.get('folderName')
-        if folder_name:
-            folder_path = f'{base_folder}/{sanitize_filename(folder_name)}'
+    for folder_name, file in zip(folder_list, files):
+        # Folder Name will be "undefined" when they are 
+        # selected via "Choose Files" button.
+        if folder_name=='undefined':
+            folder_path = base_folder
+        elif folder_name:
+            folder_path = f'{base_folder}{folder_name}'
+            folder_path = str(folder_path.rsplit('/', 1)[0])
         else:
             folder_path = base_folder
-
+        
+        print("Folder Path:", folder_path)
         os.makedirs(folder_path, exist_ok=True)
 
         # Save the file in the specified folder structure.
         sanitized_filename = sanitize_filename(file.filename)
         file_path = os.path.join(folder_path, sanitized_filename)
+
+        # If a file with the same name exists, append a number to the filename to avoid overwriting
+        count = 1
+        while os.path.exists(file_path):
+            name, ext = os.path.splitext(sanitized_filename)
+            file_path = os.path.join(folder_path, f"{name}_{count}{ext}")
+            count += 1
+
         file.save(file_path)
 
         # Check if the file was saved successfully and its size
