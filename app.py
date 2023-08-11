@@ -2,9 +2,11 @@ import os
 import re
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+import json
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "http://localhost:8080"}})
+CORS(app, resources={r"/*": {"origins": vars['website_url']}})
+vars = json.load(open('vars.json'))
 
 def sanitize_filename(filename):
     # Get the file extension
@@ -22,9 +24,9 @@ def sanitize_filename(filename):
 def get_log():
     log_param = request.args.get('log')
     if log_param == 'log_backend.log':
-        log_path = '/home/udaydigi/log_backend.log'
+        log_path = vars['backend_logs_path']
     elif log_param == 'log_git_deploy.log':
-        log_path = '/home/udaydigi/log_git_deploy.log'
+        log_path = vars['deployment_logs_path']
     else:
         return 'Invalid log selection'
 
@@ -38,7 +40,7 @@ def upload_file():
     if 'file' not in request.files:
         return 'No file part', 400
 
-    base_folder = 'uploaded_files'
+    base_folder = vars['base_folder']
     files = request.files.getlist('file')
     folder_list = request.form.getlist('folderName')
     print(folder_list)
@@ -46,10 +48,14 @@ def upload_file():
     for folder_name, file in zip(folder_list, files):
         # Folder Name will be "undefined" when they are 
         # selected via "Choose Files" button.
+        print(folder_name, file)
+        if folder_name[0] == '/':
+            folder_name = folder_name[1:]
+
         if folder_name=='undefined':
             folder_path = base_folder
         elif folder_name:
-            folder_path = f'{base_folder}{folder_name}'
+            folder_path = f'{base_folder}/{folder_name}'
             folder_path = str(folder_path.rsplit('/', 1)[0])
         else:
             folder_path = base_folder
@@ -80,4 +86,4 @@ def upload_file():
     return 'Files uploaded successfully'
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5001)
+    app.run(debug=True, port=vars['port'])
