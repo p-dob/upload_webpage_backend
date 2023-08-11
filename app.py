@@ -17,6 +17,22 @@ def sanitize_filename(filename):
     sanitized_filename = name + ext
     return sanitized_filename
 
+
+@app.route('/get-logs')
+def get_log():
+    log_param = request.args.get('log')
+    if log_param == 'log_backend.log':
+        log_path = '/home/udaydigi/log_backend.log'
+    elif log_param == 'log_git_deploy.log':
+        log_path = '/home/udaydigi/log_git_deploy.log'
+    else:
+        return 'Invalid log selection'
+
+    with open(log_path, 'r') as log_file:
+        log_content = log_file.read()
+    return log_content
+
+
 @app.route('/upload', methods=['POST'])
 def upload_file():
     if 'file' not in request.files:
