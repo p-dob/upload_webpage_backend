@@ -5,8 +5,8 @@ from flask_cors import CORS
 import json
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": vars['website_url']}})
 vars = json.load(open('vars.json'))
+CORS(app, resources={r"/*": {"origins": vars['website_url']}})
 
 def sanitize_filename(filename):
     # Get the file extension

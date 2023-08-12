@@ -2,6 +2,6 @@
     "website_url": "http://localhost:8080",
     "base_folder": "/mnt/d/UploadedFiles",
     "port": 5001,
-    "backend_logs_path": "/home/udaydigi/log_backend.log",
-    "deployment_logs_path": "/home/udaydigi/log_git_deploy.log"
+    "backend_logs_path": "/home/pdob/log_backend.log",
+    "deployment_logs_path": "/home/pdob/log_git_deploy.log"
 }
