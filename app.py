@@ -40,10 +40,12 @@ def upload_file():
     if 'file' not in request.files:
         return 'No file part', 400
 
-    base_folder = vars['base_folder']
     files = request.files.getlist('file')
     folder_list = request.form.getlist('folderName')
-    print(folder_list)
+    base_folder = vars['base_folder']
+    user_identifier = request.form.getlist('userName')[0] + '_' + request.form.getlist('userNumber')[0]
+    base_folder = os.path.join(base_folder, user_identifier)
+    print(base_folder)
 
     for folder_name, file in zip(folder_list, files):
         # Folder Name will be "undefined" when they are 
